@@ -8,14 +8,13 @@ app.use(express.json());
 app.use(cors());
 
 const repositories = [];
-// const likes = 0
 
-app.get("/repositories", (request, response) => {
-  return response.json(repositories)
+app.get('/repositories', (req, res) => {
+  return res.json(repositories)
 });
 
-app.post("/repositories", (request, response) => {
-  const { title, url, techs } = request.body
+app.post('/repositories', (req, res) => {
+  const { title, url, techs } = req.body
 
   const repository = {
     id: uuid(),
@@ -27,17 +26,19 @@ app.post("/repositories", (request, response) => {
 
   repositories.push(repository)
 
-  return response.json(repositories)
+  return res.json(repository)
 });
 
-app.put("/repositories/:id", (request, response) => {
-  const { id } = request.params
-  const { title, url, techs } = request.body
+app.put('/repositories/:id', (req, res) => {
+  const { id } = req.params
+  const { url, title, techs } = req.body
 
-  const repositoriesIndex = repositories.find(repository => repository.id === id)
+  const repositoriesIndex = repositories.find(
+    (repository) => repository.id === id
+  )
 
   if (repositoriesIndex < 0) {
-    return response.status(400).json({ error: 'Invalid repository ID' })
+    return res.status(400).json({ error: 'Invalid repository ID' })
   }
 
   const repository = {
@@ -50,35 +51,39 @@ app.put("/repositories/:id", (request, response) => {
 
   repositories[repositoriesIndex] = repository
 
-  return response.json(repository)
+  return res.status(400).json(repository)
 });
 
-app.delete("/repositories/:id", (request, response) => {
-  const { id } = request.params
+app.delete('/repositories/:id', (req, res) => {
+  const { id } = req.params
 
-  const repositoriesIndex = repositories.find(repository => repository.id === id)
+  const repositoryIndex = repositories.findIndex(
+    repository => repository.id === id
+  )
 
-  if (repositoriesIndex < 0) {
-    return response.status(400).json({ error: 'Invalid repository ID' })
+  if (repositoryIndex < 0) {
+    return res.status(400).json({ error: 'Project not found.' });
   }
 
-  repositories.splice(repositoriesIndex, 1)
+  repositories.splice(repositoryIndex, 1)
 
-  return response.status(204).send()
+  return res.status(204).send()
 });
 
-app.post("/repositories/:id/like", (request, response) => {
-  const { id } = request.params
+app.post('/repositories/:id/like', (req, res) => {
+  const { id } = req.params
 
-  const repository = repositories.find(repository => repository.id === id)
+  const repository = repositories.find(
+    (repository) => repository.id === id
+  )
 
-  if (repository < 0) {
-    return response.status(400).send()
+  if (!repository) {
+    return res.status(400).send()
   }
 
   repository.likes += 1
 
-  return response.json(repository)
+  return res.json(repository)
 });
 
 module.exports = app;
